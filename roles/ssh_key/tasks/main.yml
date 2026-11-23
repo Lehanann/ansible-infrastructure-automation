@@ -1,0 +1,4 @@
+- name: Install ansible public key
+  ansible.posix.authorized_key:
+    user: ansible
+    key: "{{ lookup('file', '/home/sysadmin/.ssh/id_ed25519.pub') }}"

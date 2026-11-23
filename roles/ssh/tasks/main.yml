@@ -1,0 +1,24 @@
+---
+- name: Disable AuthenticationPassword on 50-cloud-init.conf
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+
+- name: Deploy SSH hardening configuration
+  ansible.builtin.copy:
+    src: 99-hardening.conf
+    dest: /etc/ssh/sshd_config.d/99-hardening.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Validate SSH configuration
+  ansible.builtin.command:
+    cmd: sshd -t
+  changed_when: false
+
+- name: Restart SSH service
+  ansible.builtin.service:
+    name: ssh
+    state: restarted

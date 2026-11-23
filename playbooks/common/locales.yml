@@ -1,0 +1,7 @@
+---
+- name: Configure system locales
+  hosts: all
+  become: true
+
+  roles:
+    - locales

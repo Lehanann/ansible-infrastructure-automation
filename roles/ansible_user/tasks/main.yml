@@ -1,0 +1,5 @@
+---
+- name: Configure ansible account
+  ansible.builtin.user:
+    name: ansible
+    password: "{{ ansible_password }}"

@@ -1,0 +1,7 @@
+---
+- name: Set Hostname new server ubuntu
+  hosts: all
+  gather_facts: false
+
+  roles:
+    - hostname

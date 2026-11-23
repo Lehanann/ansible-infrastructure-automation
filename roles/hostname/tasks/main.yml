@@ -1,0 +1,10 @@
+---
+- name: Check hostname variable
+  ansible.builtin.assert:
+    that:
+      - hostname_vm is defined
+    fail_msg: "hostname_vm variable is missing"
+
+- name: Set a hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname_vm }}"

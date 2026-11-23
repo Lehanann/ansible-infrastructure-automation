@@ -1,0 +1,7 @@
+---
+- name: Update playbook
+  hosts: all
+  gather_facts: false
+
+  roles:
+    - update

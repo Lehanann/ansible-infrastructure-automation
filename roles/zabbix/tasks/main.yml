@@ -1,0 +1,123 @@
+---
+- name: Add zabbix repository
+  ansible.builtin.apt:
+    deb: https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_{{ zabbix_version }}+ubuntu{{ ubuntu_version }}_all.deb
+    state: present
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 0
+
+- name: Installation zabbix package
+  ansible.builtin.apt:
+    name:
+      - zabbix-server-pgsql
+      - zabbix-frontend-php
+      - zabbix-sql-scripts
+      - php{{ php_version }}-pgsql
+      - php{{ php_version }}-fpm
+      - zabbix-agent
+      - python3-psycopg
+    state: present
+
+- name: Installation ACL package
+  ansible.builtin.package:
+    name: acl
+    state: present
+
+- name: Create zabbix user to PostgreSQL
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    name: "{{ zabbix_db_user }}"
+    password: "{{ zabbix_db_password }}"
+    role_attr_flags: NOSUPERUSER,NOCREATEROLE
+
+- name: Create zabbix database
+  become_user: postgres
+  community.postgresql.postgresql_db:
+    name: "{{ zabbix_db_name }}"
+    owner: "{{ zabbix_db_user }}"
+
+- name: Check schema exists
+  become_user: postgres
+  community.postgresql.postgresql_query:
+    login_db: "{{ zabbix_db_name }}"
+    query: SELECT to_regclass('public.users') IS NOT NULL AS schema_exists;
+  register: schema_exists
+
+- name: Initial import schema and data
+  become_user: postgres
+  ansible.builtin.shell:
+    cmd: zcat /usr/share/zabbix-sql-scripts/postgresql/server.sql.gz | psql {{ zabbix_db_name }}
+  when: not schema_exists.query_result[0].schema_exists
+
+- name: Grant rights on tables
+  become_user: postgres
+  community.postgresql.postgresql_query:
+    login_db: "{{ zabbix_db_name }}"
+    query: |
+      GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO {{ zabbix_db_user }};
+      GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO {{ zabbix_db_user }};
+  changed_when: false
+
+- name: Deploy zabbix server conf
+  ansible.builtin.template:
+    src: zabbix_server.conf.j2
+    dest: /etc/zabbix/zabbix_server.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify: restart zabbix-server
+
+- name: Deploy zabbix nginx vhost
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/conf.d/zabbix.conf
+  notify: reload nginx
+
+- name: Ensure zabbix-server is started and enabled
+  ansible.builtin.systemd_service:
+    name: zabbix-server
+    state: started
+    enabled: true
+
+- name: Ensure zabbix-agent is started and enabled
+  ansible.builtin.systemd_service:
+    name: zabbix-agent
+    state: started
+    enabled: true
+
+- name: Ensure php-fpm is started and enabled
+  ansible.builtin.systemd_service:
+    name: php{{ php_version }}-fpm
+    state: started
+    enabled: true
+
+- name: Ensure nginx is started and enabled
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Set post_max_size
+  ansible.builtin.lineinfile:
+    path: /etc/php/{{ php_version }}/fpm/php.ini
+    regexp: '^post_max_size ='
+    line: 'post_max_size = 16M'
+  notify: restart php-fpm
+
+- name: Set max_execution_time
+  ansible.builtin.lineinfile:
+    path: /etc/php/{{ php_version }}/fpm/php.ini
+    regexp: '^max_execution_time ='
+    line: 'max_execution_time = 300'
+  notify: restart php-fpm
+
+- name: Set max_input_time
+  ansible.builtin.lineinfile:
+    path: /etc/php/{{ php_version }}/fpm/php.ini
+    regexp: '^max_input_time ='
+    line: 'max_input_time = 300'
+  notify: restart php-fpm

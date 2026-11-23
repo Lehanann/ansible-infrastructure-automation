@@ -1,0 +1,10 @@
+---
+- name: Installation Zabbix
+  hosts: all
+  become: true
+
+  vars_files:
+    - ../../vars/zabbix_server.yml
+
+  roles:
+    - zabbix

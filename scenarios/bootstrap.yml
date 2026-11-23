@@ -1,0 +1,6 @@
+---
+- name: SSH key
+  ansible.builtin.import_playbook: ../playbooks/common/ssh_key.yml
+
+- name: config SSH
+  ansible.builtin.import_playbook: ../playbooks/common/ssh.yml

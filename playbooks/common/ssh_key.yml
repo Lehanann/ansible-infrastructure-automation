@@ -1,0 +1,10 @@
+---
+- name: Install ansible public key
+  hosts: all
+  become: true
+
+  vars_files:
+    - ../../vault/secret.yml
+
+  roles:
+    - ssh_key

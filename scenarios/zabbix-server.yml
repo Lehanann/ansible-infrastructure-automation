@@ -1,0 +1,12 @@
+---
+- name: Installation ubuntu base
+  ansible.builtin.import_playbook: ubuntu_base.yml
+
+- name: Installaton Nginx
+  ansible.builtin.import_playbook: ../playbooks/services/nginx.yml
+
+- name: Installation PostgreSQL
+  ansible.builtin.import_playbook: ../playbooks/services/postgresql.yml
+
+- name: Installation de Zabbix
+  ansible.builtin.import_playbook: ../playbooks/services/zabbix.yml

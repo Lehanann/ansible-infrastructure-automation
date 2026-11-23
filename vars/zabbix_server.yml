@@ -1,0 +1,21 @@
+ubuntu_version: "24.04"
+
+zabbix_version: "7.0"
+php_version: "8.3"
+
+zabbix_server_name: "_"
+zabbix_server_port: 80
+
+zabbix_db_host: ""
+zabbix_db_name: "zabbix"
+zabbix_db_user: "zabbix"
+zabbix_db_password: "zabbix"
+
+zabbix_start_pollers: 10
+zabbix_start_pollers_unreachable: 2
+zabbix_start_trappers: 5
+
+zabbix_cache_size: "2G"
+zabbix_value_cache_size: "1G"
+
+zabbix_timeout: 4

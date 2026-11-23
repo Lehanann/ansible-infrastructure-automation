@@ -1,0 +1,13 @@
+---
+- name: Install locales package
+  ansible.builtin.apt:
+    name: locales
+    state: present
+
+- name: Enable French locale
+  ansible.builtin.lineinfile:
+    path: /etc/locale.gen
+    regexp: '^#?\s*fr_FR.UTF-8 UTF-8$'
+    line: 'fr_FR.UTF-8 UTF-8'
+    state: present
+  notify: Generate locales

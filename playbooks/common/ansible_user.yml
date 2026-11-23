@@ -1,0 +1,9 @@
+- name: Bootstrap ansible account
+  hosts: all
+  become: true
+
+  vars_files:
+    - ../..vault/secret.yml
+
+  roles:
+    - ansible_user

@@ -1,0 +1,9 @@
+---
+- name: Update
+  ansible.builtin.import_playbook: ../playbooks/common/update.yml
+
+- name: Hostname
+  ansible.builtin.import_playbook: ../playbooks/common/hostname.yml
+
+- name: Locales FR
+  ansible.builtin.import_playbook: ../playbooks/common/locales.yml
