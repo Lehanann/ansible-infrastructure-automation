@@ -109,7 +109,7 @@ all:
 Variables globales :
 
 ```yaml
-ansible_user: ansible_user
+ansible_user: ansible
 ansible_become: true
 ansible_python_interpreter: python3
 ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
