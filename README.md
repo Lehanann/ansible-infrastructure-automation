@@ -307,7 +307,6 @@ ou via un futur rôle dédié.
 - [x] Zabbix Server
 - [ ] Zabbix Agent
 - [X] Nginx
-- [ ] Node Exporter
 
 ---
 
